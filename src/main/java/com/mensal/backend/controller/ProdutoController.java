@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
@@ -32,6 +34,24 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoAtualizado);
     }
 
-    // adicionar aqui: @GetMapping, @GetMapping("/{id}"),
-    // @GetMapping("/buscar") e @DeleteMapping("/{id}")
+    @GetMapping
+    public ResponseEntity<List<Produto>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Produto> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Produto>> buscarPorNome(@RequestParam String nome) {
+        return ResponseEntity.ok(service.buscarPorNome(nome));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
 }
