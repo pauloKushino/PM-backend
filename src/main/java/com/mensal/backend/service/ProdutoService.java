@@ -1,6 +1,7 @@
 package com.mensal.backend.service;
 
 import com.mensal.backend.dto.CreateProdutoRequest;
+import com.mensal.backend.dto.ProdutoResponse;
 import com.mensal.backend.dto.UpdateProdutoRequest;
 import com.mensal.backend.exception.ProdutoNaoEncontradoException;
 import com.mensal.backend.model.Produto;
@@ -18,19 +19,19 @@ public class ProdutoService {
         this.repository = repository;
     }
 
-    public Produto criar(CreateProdutoRequest request) {
+    public ProdutoResponse criar(CreateProdutoRequest request) {
         Produto produto = new Produto();
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
         produto.setPreco(request.preco());
         produto.setQuantidadeEstoque(request.quantidadeEstoque());
         produto.setCategoria(request.categoria());
-        return repository.save(produto);
+        return toResponse(repository.save(produto));
     }
 
-    public Produto atualizar(Long id, UpdateProdutoRequest request) {
+    public ProdutoResponse atualizar(Long id, UpdateProdutoRequest request) {
         Produto produto = repository.findById(id)
-                .orElseThrow(() -> new ProdutoNaoEncontradoException());
+                .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
 
         produto.setNome(request.nome());
         produto.setDescricao(request.descricao());
@@ -38,25 +39,38 @@ public class ProdutoService {
         produto.setQuantidadeEstoque(request.quantidadeEstoque());
         produto.setCategoria(request.categoria());
 
-        return repository.save(produto);
+        return toResponse(repository.save(produto));
     }
 
-    public List<Produto> listarTodos() {
-        return repository.findAll();
+    public List<ProdutoResponse> listarTodos() {
+        return repository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Produto> buscarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome);
+    public List<ProdutoResponse> buscarPorNome(String nome) {
+        return repository.findByNomeContainingIgnoreCase(nome).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Produto buscarPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ProdutoNaoEncontradoException());
+    public ProdutoResponse buscarPorId(Long id) {
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
+        return toResponse(produto);
     }
 
     public void deletar(Long id) {
-        Produto produto = repository.findById(id)
-                .orElseThrow(() -> new ProdutoNaoEncontradoException());
-        repository.delete(produto);
+        if (!repository.existsById(id)) {
+            throw new ProdutoNaoEncontradoException(id);
+        }
+        repository.deleteById(id);
+    }
+
+    private ProdutoResponse toResponse(Produto produto) {
+        return new ProdutoResponse(
+                produto.getId(), produto.getNome(), produto.getDescricao(),
+                produto.getPreco(), produto.getQuantidadeEstoque(), produto.getCategoria()
+        );
     }
 }

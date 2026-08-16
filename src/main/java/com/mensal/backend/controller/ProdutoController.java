@@ -1,8 +1,8 @@
 package com.mensal.backend.controller;
 
 import com.mensal.backend.dto.CreateProdutoRequest;
+import com.mensal.backend.dto.ProdutoResponse;
 import com.mensal.backend.dto.UpdateProdutoRequest;
-import com.mensal.backend.model.Produto;
 import com.mensal.backend.service.ProdutoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,31 +21,27 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<Produto> criar(@RequestBody CreateProdutoRequest request) {
-        Produto novoProduto = service.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoProduto);
+    public ResponseEntity<ProdutoResponse> criar(@RequestBody CreateProdutoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> atualizar(
-            @PathVariable Long id,
-            @RequestBody UpdateProdutoRequest request) {
-        Produto produtoAtualizado = service.atualizar(id, request);
-        return ResponseEntity.ok(produtoAtualizado);
+    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id, @RequestBody UpdateProdutoRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Produto>> listarTodos() {
+    public ResponseEntity<List<ProdutoResponse>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Produto> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Produto>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<List<ProdutoResponse>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));
     }
 
